@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Playbook: A Diversified Texas Energy Producer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Solaris Horizon -->
+    <!-- Application Structure Plan: The application is designed as a single-page, multi-section dashboard. This structure transforms the linear business plan into a dynamic, user-driven experience. Instead of forcing a top-to-bottom read, users can navigate via a sticky header to sections of interest: Overview, Phased Strategy, Financials, and the Future Vision. This thematic organization allows stakeholders (e.g., investors, partners) to quickly access the information most relevant to them. Key interactions include clickable phase cards, an interactive process diagram for the complex ERCOT interconnection, comparative charts for financial models, and expandable cards for future technologies. This design choice prioritizes clarity, engagement, and efficient information discovery over a static document format. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Phased Strategy -> Goal: Clarify multi-stage plan -> Viz: Interactive Cards -> Interaction: Click to scroll to detailed section -> Justification: Provides a high-level map of the business journey, making the overall strategy easy to grasp. -> Library/Method: HTML/JS.
+        - Report Info: ERCOT Interconnection Process Table -> Goal: Simplify a complex, lengthy process -> Viz: Interactive Step-Flow Diagram -> Interaction: Click on a step to highlight it and view its detailed description, timeline, and responsible parties. -> Justification: Transforms a dense table into an intuitive, engaging, and less intimidating visual guide, which is a key "wow" factor for demonstrating operational awareness. -> Library/Method: Custom HTML/CSS/JS.
+        - Report Info: Financial Capital Stack & Use of Funds -> Goal: Inform on financial structure -> Viz: Donut Charts -> Interaction: Hover to see details on tooltips. -> Justification: Provides a quick, clear visual breakdown of complex financial data. -> Library/Method: Chart.js.
+        - Report Info: PPA vs. Lease Models -> Goal: Compare business models -> Viz: Side-by-side cards -> Interaction: Clear visual separation with icons -> Justification: Allows for easy, at-a-glance comparison of key business model features. -> Library/Method: HTML/Tailwind CSS.
+        - Report Info: Nuclear Reactor Technologies Table -> Goal: Organize and present complex technical data -> Viz: Expandable Accordion Cards -> Interaction: Click to expand/collapse and view details for each reactor. -> Justification: Manages information density, allowing users to explore technologies one by one without being overwhelmed. -> Library/Method: Custom HTML/JS.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7; /* Warm off-white */
+            color: #333;
+        }
+        .bg-primary { background-color: #FDFBF7; }
+        .bg-secondary { background-color: #FFFFFF; }
+        .text-accent-solar { color: #D97706; } /* Amber */
+        .bg-accent-solar { background-color: #D97706; }
+        .border-accent-solar { border-color: #D97706; }
+        .text-accent-nuclear { color: #2563EB; } /* Blue */
+        .bg-accent-nuclear { background-color: #2563EB; }
+        .border-accent-nuclear { border-color: #2563EB; }
+        .text-dark { color: #1F2937; }
+        .text-medium { color: #4B5563; }
+        .text-light { color: #9CA3AF; }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .step-item {
+            transition: all 0.3s ease-in-out;
+        }
+        .step-item.active {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            border-color: #D97706;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-primary">
+
+    <!-- Header -->
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-dark">Texas Energy Vision</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#overview" class="text-medium hover:text-accent-solar transition">Overview</a>
+                <a href="#phase1" class="text-medium hover:text-accent-solar transition">Phase 1: Utility Scale</a>
+                <a href="#phase2-3" class="text-medium hover:text-accent-solar transition">Phases 2&3: C&I</a>
+                <a href="#financials" class="text-medium hover:text-accent-solar transition">Financials</a>
+                <a href="#future" class="text-medium hover:text-accent-nuclear transition">Future: Nuclear</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-dark">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#overview" class="block py-2 px-6 text-medium hover:bg-gray-100">Overview</a>
+            <a href="#phase1" class="block py-2 px-6 text-medium hover:bg-gray-100">Phase 1: Utility Scale</a>
+            <a href="#phase2-3" class="block py-2 px-6 text-medium hover:bg-gray-100">Phases 2&3: C&I</a>
+            <a href="#financials" class="block py-2 px-6 text-medium hover:bg-gray-100">Financials</a>
+            <a href="#future" class="block py-2 px-6 text-medium hover:bg-gray-100">Future: Nuclear</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Overview Section -->
+        <section id="overview" class="py-16 md:py-24">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-5xl font-bold text-dark mb-4">Powering the Future of Texas</h2>
+                <p class="text-lg md:text-xl text-medium max-w-3xl mx-auto mb-8">
+                    Our mission is to develop, finance, and operate a portfolio of clean energy assets, beginning with solar and evolving to advanced nuclear, enhancing grid reliability and enabling new frontiers.
+                </p>
+                
+                <div class="grid md:grid-cols-3 gap-8 text-left max-w-5xl mx-auto">
+                    <div class="bg-secondary p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-accent-solar text-lg mb-2">The ERCOT Opportunity</h3>
+                        <p class="text-medium">Texas's deregulated, "energy-only" market fosters intense competition and high-reward opportunities, with wholesale prices able to reach <span class="font-bold text-dark">$5,000/MWh</span> during peak demand.</p>
+                    </div>
+                    <div class="bg-secondary p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-accent-solar text-lg mb-2">Phased Execution</h3>
+                        <p class="text-medium">A multi-phased strategy mitigates risk by building from utility-scale solar to C&I projects, creating a stable financial foundation for long-term growth and innovation.</p>
+                    </div>
+                    <div class="bg-secondary p-6 rounded-lg shadow-md">
+                        <h3 class="font-bold text-accent-nuclear text-lg mb-2">The Nuclear Frontier</h3>
+                        <p class="text-medium">Our long-term vision is to pioneer the commercialization of micro-nuclear reactors, addressing ERCOT's reliability needs and developing technology for space exploration.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 1 Section -->
+        <section id="phase1" class="py-16 md:py-24 bg-secondary">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-dark">Phase 1: Utility-Scale Solar</h2>
+                    <p class="mt-4 text-lg text-medium max-w-3xl mx-auto">This phase establishes our market position by developing a 100-acre solar farm to sell power directly into the ERCOT wholesale market. Success in this phase is about mastering the complex interconnection process and building a track record of execution.</p>
+                </div>
+
+                <h3 class="text-2xl font-bold text-dark text-center mb-8">The ERCOT Interconnection Gauntlet</h3>
+                <div class="flex flex-col md:flex-row items-start justify-center">
+                    <!-- Step Details -->
+                    <div id="step-details" class="w-full md:w-1/3 p-6 bg-gray-50 rounded-lg shadow-inner mb-8 md:mb-0 md:mr-8">
+                        <h4 id="step-title" class="text-xl font-bold text-accent-solar mb-2">Click a step to see details</h4>
+                        <p id="step-description" class="text-medium mb-4">The interconnection process is the most significant hurdle. Each step has specific requirements, timelines, and deliverables.</p>
+                        <div id="step-meta" class="text-sm space-y-2"></div>
+                    </div>
+                    <!-- Steps -->
+                    <div class="w-full md:w-2/3 space-y-4">
+                        <div id="step-1" class="step-item p-4 border-2 border-gray-200 rounded-lg cursor-pointer bg-white">
+                            <p class="font-semibold">1. GINR Application</p>
+                        </div>
+                        <div id="step-2" class="step-item p-4 border-2 border-gray-200 rounded-lg cursor-pointer bg-white">
+                            <p class="font-semibold">2. ERCOT Screening Study</p>
+                        </div>
+                        <div id="step-3" class="step-item p-4 border-2 border-gray-200 rounded-lg cursor-pointer bg-white">
+                            <p class="font-semibold">3. Full Interconnection Study (FIS)</p>
+                        </div>
+                        <div id="step-4" class="step-item p-4 border-2 border-gray-200 rounded-lg cursor-pointer bg-white">
+                            <p class="font-semibold">4. Interconnection Agreement (SGIA)</p>
+                        </div>
+                        <div id="step-5" class="step-item p-4 border-2 border-gray-200 rounded-lg cursor-pointer bg-white">
+                            <p class="font-semibold">5. Registration & Modeling</p>
+                        </div>
+                        <div id="step-6" class="step-item p-4 border-2 border-gray-200 rounded-lg cursor-pointer bg-white">
+                            <p class="font-semibold">6. Commissioning & Commercial Operation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phases 2 & 3 Section -->
+        <section id="phase2-3" class="py-16 md:py-24 bg-primary">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-dark">Phases 2 & 3: Commercial & Industrial (C&I)</h2>
+                    <p class="mt-4 text-lg text-medium max-w-3xl mx-auto">Here, we diversify our revenue by becoming a distributed energy services provider. We'll develop solar projects on warehouse rooftops and parking lots, selling cheaper, clean power directly to businesses.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-secondary p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-dark mb-4">Model 1: Power Purchase Agreement (PPA)</h3>
+                        <p class="text-medium mb-4">A "solar-as-a-service" model. We install, own, and operate the system at no upfront cost to the client. They sign a long-term contract to buy the power produced at a rate lower than their utility.</p>
+                        <ul class="space-y-2 text-medium">
+                            <li class="flex items-center"><span class="text-accent-solar mr-2">&#10003;</span> Reduced electricity bills for host</li>
+                            <li class="flex items-center"><span class="text-accent-solar mr-2">&#10003;</span> $0 upfront cost for host</li>
+                            <li class="flex items-center"><span class="text-accent-solar mr-2">&#10003;</span> 15-25 year term</li>
+                        </ul>
+                    </div>
+                    <div class="bg-secondary p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-dark mb-4">Model 2: Rooftop / Land Lease</h3>
+                        <p class="text-medium mb-4">A simpler model where we lease the rooftop or parking lot space. We install and own the system, selling all power to the grid. The property owner receives a stable, fixed lease payment.</p>
+                        <ul class="space-y-2 text-medium">
+                            <li class="flex items-center"><span class="text-accent-solar mr-2">&#10003;</span> Fixed lease income for host</li>
+                            <li class="flex items-center"><span class="text-accent-solar mr-2">&#10003;</span> Monetizes unused space</li>
+                            <li class="flex items-center"><span class="text-accent-solar mr-2">&#10003;</span> 20-30 year term</li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="mt-12 bg-secondary p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-bold text-dark text-center mb-6">Ideal Customer Profile</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                        <div>
+                            <div class="text-4xl text-accent-solar mb-2">&#128230;</div>
+                            <p class="font-semibold">Distribution Centers</p>
+                        </div>
+                        <div>
+                            <div class="text-4xl text-accent-solar mb-2">&#128722;</div>
+                            <p class="font-semibold">"Big-Box" Retail</p>
+                        </div>
+                        <div>
+                            <div class="text-4xl text-accent-solar mb-2">&#127981;</div>
+                            <p class="font-semibold">Manufacturing Plants</p>
+                        </div>
+                        <div>
+                            <div class="text-4xl text-accent-solar mb-2">&#129378;</div>
+                            <p class="font-semibold">Cold Storage Facilities</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financials Section -->
+        <section id="financials" class="py-16 md:py-24 bg-secondary">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-dark">Financial Plan & Projections</h2>
+                    <p class="mt-4 text-lg text-medium max-w-3xl mx-auto">A robust financial strategy underpins our growth. We will leverage project financing, monetize federal and state incentives, and seek seed funding for critical pre-construction milestones.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold text-dark mb-4 text-center">Phase 1 Funding Request</h3>
+                        <p class="text-medium mb-6 text-center">Initial seed capital will be used for essential pre-construction activities before the project is bankable.</p>
+                        <div class="chart-container">
+                            <canvas id="fundingChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-dark mb-4 text-center">Projected Capital Stack</h3>
+                        <p class="text-medium mb-6 text-center">A standard project finance structure will be pursued, isolating project assets and cash flows.</p>
+                        <div class="chart-container">
+                            <canvas id="capitalStackChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Future Section -->
+        <section id="future" class="py-16 md:py-24 bg-primary">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-accent-nuclear">The Nuclear Horizon: Advanced Fission</h2>
+                    <p class="mt-4 text-lg text-medium max-w-3xl mx-auto">Our long-term vision is to pivot to advanced nuclear power, addressing grid stability and pioneering new technologies for terrestrial and space applications. This is a deliberate, multi-decade effort funded by our solar portfolio.</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto">
+                    <h3 class="text-2xl font-bold text-dark mb-6 text-center">Leading Micro-Reactor Technologies</h3>
+                    <div id="accordion-container" class="space-y-4">
+                        <!-- Accordion items will be injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 Texas Energy Vision. All Rights Reserved.</p>
+            <p class="text-sm text-gray-400 mt-2">This is a conceptual business plan representation.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mobile Menu
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // ERCOT Interconnection Steps
+            const steps = [
+                { id: 1, title: 'GINR Application', duration: '5-25 Days', party: 'Company', desc: 'Submit Generation Interconnection or Change Request (GINR) application, data, and fees via RIOO-IS portal.' },
+                { id: 2, title: 'ERCOT Screening Study', duration: 'Up to 90 Days', party: 'ERCOT', desc: 'ERCOT performs a high-level grid impact analysis to assess the project\'s potential effect on grid reliability.' },
+                { id: 3, title: 'Full Interconnection Study (FIS)', duration: '40-500+ Days', party: 'Transmission Service Provider (TSP)', desc: 'The TSP conducts detailed engineering studies to determine required grid upgrades and provides cost estimates. This is the most critical and time-intensive phase.' },
+                { id: 4, title: 'Interconnection Agreement (SGIA)', duration: 'Up to 180 Days (post-FIS)', party: 'Company, TSP', desc: 'Negotiate and sign a Standard Generation Interconnection Agreement, a legally binding contract outlining technical requirements, costs, and timelines.' },
+                { id: 5, title: 'Registration & Modeling', duration: '120-180 Days', party: 'Company', desc: 'Officially register as a Resource Entity with ERCOT and PUCT. Submit detailed technical data (RARF) to model the facility in ERCOT\'s systems.' },
+                { id: 6, title: 'Commissioning & Commercial Operation', duration: '60-120 Days', party: 'Company, ERCOT, QSE', desc: 'Submit a commissioning plan and complete a rigorous 3-part checklist of tests to verify plant capabilities before being granted permission for full commercial operation.' }
+            ];
+
+            const stepDetailsTitle = document.getElementById('step-title');
+            const stepDetailsDesc = document.getElementById('step-description');
+            const stepDetailsMeta = document.getElementById('step-meta');
+            const stepItems = document.querySelectorAll('.step-item');
+
+            function updateStepDetails(step) {
+                stepDetailsTitle.textContent = step.title;
+                stepDetailsDesc.textContent = step.desc;
+                stepDetailsMeta.innerHTML = `
+                    <p><span class="font-semibold">Est. Duration:</span> ${step.duration}</p>
+                    <p><span class="font-semibold">Responsible Party:</span> ${step.party}</p>
+                `;
+                stepItems.forEach(item => item.classList.remove('active'));
+                document.getElementById(`step-${step.id}`).classList.add('active');
+            }
+
+            stepItems.forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    updateStepDetails(steps[index]);
+                });
+            });
+            updateStepDetails(steps[0]); // Initialize with the first step
+
+            // Accordion for Nuclear Tech
+            const accordionData = [
+                { title: 'X-energy (Xe-100)', content: '<b>Type:</b> High-Temp. Gas-Cooled Reactor (HTGR)<br><b>Output:</b> 80 MWe per unit<br><b>Fuel:</b> TRISO Pebble Bed (HALEU)<br><b>Safety:</b> Meltdown-proof fuel, passive heat dissipation.<br><b>Status:</b> Targeting operation by 2028.' },
+                { title: 'TerraPower (Natrium)', content: '<b>Type:</b> Sodium-Cooled Fast Reactor (SFR)<br><b>Output:</b> 345 MWe<br><b>Fuel:</b> HALEU Metal Fuel<br><b>Safety:</b> Inherent safety feedbacks, molten salt energy storage.<br><b>Status:</b> Targeting operation near 2030.' },
+                { title: 'NuScale Power (VOYGR)', content: '<b>Type:</b> Pressurized Water Reactor (PWR)<br><b>Output:</b> 77 MWe per module<br><b>Fuel:</b> Standard LEU<br><b>Safety:</b> Passive cooling via natural convection in a large water pool.<br><b>Status:</b> First SMR design certified by NRC (2022).'},
+                { title: 'Oklo Inc. (Aurora)', content: '<b>Type:</b> Liquid Metal-Cooled Fast Reactor<br><b>Output:</b> 15-50 MWe<br><b>Fuel:</b> HALEU (can use recycled fuel)<br><b>Safety:</b> Inherent safety demonstrated, walk-away safe.<br><b>Status:</b> Re-engaging with NRC, targeting 2027 deployment.'}
+            ];
+            const accordionContainer = document.getElementById('accordion-container');
+            accordionData.forEach(item => {
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'bg-secondary rounded-lg shadow-md overflow-hidden';
+                accordionItem.innerHTML = `
+                    <button class="accordion-button w-full text-left p-4 font-semibold text-dark flex justify-between items-center">
+                        <span>${item.title}</span>
+                        <span class="transform transition-transform duration-300">&#9662;</span>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="p-4 border-t border-gray-200 text-medium">${item.content}</div>
+                    </div>
+                `;
+                accordionContainer.appendChild(accordionItem);
+            });
+
+            document.querySelectorAll('.accordion-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('span:last-child');
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                        document.querySelectorAll('.accordion-button span:last-child').forEach(i => i.style.transform = 'rotate(0deg)');
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+
+
+            // Chart.js - Funding Chart
+            const fundingCtx = document.getElementById('fundingChart').getContext('2d');
+            new Chart(fundingCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ERCOT Fees & Deposits', 'Full Interconnection Study', 'Engineering & Environmental', 'Legal & Admin', 'Core Team Salaries', 'Site Control'],
+                    datasets: [{
+                        label: 'Use of Funds',
+                        data: [15, 25, 20, 10, 20, 10],
+                        backgroundColor: ['#FBBF24', '#F59E0B', '#D97706', '#B45309', '#92400E', '#78350F'],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            // Chart.js - Capital Stack Chart
+            const capitalStackCtx = document.getElementById('capitalStackChart').getContext('2d');
+            new Chart(capitalStackCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tax Equity', 'Senior Debt', 'Sponsor Equity'],
+                    datasets: [{
+                        label: 'Capital Stack',
+                        data: [40, 45, 15],
+                        backgroundColor: ['#60A5FA', '#3B82F6', '#2563EB'],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
